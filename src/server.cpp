@@ -12,27 +12,18 @@
 class SimpleCharBuffer
 
 {
-
 public:
 
     SimpleCharBuffer()
-
         : memory_capacity{64} 
-
     {
-
         memory = new char[memory_capacity];
-
     }
 
     SimpleCharBuffer(std::size_t memory_capacity)
-
         : memory_capacity{memory_capacity}
-
     {
-
         memory = new char[memory_capacity];
-
     }
 
     SimpleCharBuffer(const SimpleCharBuffer& that) = delete;
@@ -43,10 +34,7 @@ public:
 
     SimpleCharBuffer& operator=(SimpleCharBuffer&& that) = delete;
 
-    
-
     std::size_t capacity() const noexcept
-
     {
 
         return memory_capacity;       
@@ -54,74 +42,65 @@ public:
     }
 
     void reallocate(std::size_t memory_capacity)
-
     {
-
         if(memory)
-
         {
 
             delete[] memory;
 
         }
-
         this->memory_capacity = memory_capacity;
-
         memory = new char[memory_capacity];
-
     } 
 
     void clear()
-
     {
-
         delete[] memory;
-
         memory = nullptr;
-
         memory_capacity = 0;
-
     }
 
     char* charPointer()
-
     {
-
         return memory;
-
     }
 
     void* rawPointer()
-
     {
-
         return static_cast<void*>(memory);
-
     }
 
     ~SimpleCharBuffer()
-
     {
-
         if(memory)
-
         {
-
             delete[] memory;
-
         }
-
     }
 
 private:
 
-    
-
     std::size_t memory_capacity;
-
     char* memory;
 
 };
+
+bool isStartSequence(const std::string& start_sequence, const char* ptr)
+{
+    bool exists{true};
+    std::size_t i{0};
+    for(const auto& element : start_sequence)
+    {
+        if(element != ptr[i])
+        {
+            exists = false;
+            break;
+
+        }
+        ++i;
+    }
+    return exists;
+}
 
 int main(int argc, char **argv) 
 {
@@ -201,21 +180,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string sequence_to_find{"GET / HTTP/1.1\r\n"};
-    bool found{true};
-    std::size_t i{0};
-    for(const auto& element : sequence_to_find)
-    {
-        if(element != message_buffer.charPointer()[i])
-        {
-            found = false;
-            break;
-
-        }
-        ++i;
-    }
-
-    std::string message{found? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string start_sequence{"GET / HTTP/1.1\r\n"};
+    std::string message{isStartSequence(start_sequence, message_buffer.charPointer())? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
@@ -229,5 +195,5 @@ int main(int argc, char **argv)
 
     close(server_fd);
     close(client_fd);
-  return 0;
+    return 0;
 }
