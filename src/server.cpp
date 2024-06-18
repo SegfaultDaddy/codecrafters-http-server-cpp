@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     std::cout << "Waiting for a client to connect...\n";
     int client_fd{accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len)};
     std::string message{"HTTP/1.1 200 OK\r\n\r\n"};
-    ssize_t bytes_send{send(server_fd, message.c_str(), message.length(), MSG_OOB)};
+    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_OOB)};
     std::cout << "Client connected\n";
     close(server_fd);
     close(client_fd);
