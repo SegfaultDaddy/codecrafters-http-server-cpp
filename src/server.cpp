@@ -63,9 +63,26 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string message{"HTTP/1.1 200 OK\r\n\r\n"};
-    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     std::cout << "Client connected\n";
+    
+    std::string message_buffer(1024, '\0');
+
+    ssize_t bytes_accepted{recv(client_fd, message_buffer.c_str(), message_buffer.capacity(), MSG_OOB)};
+    
+    if(bytes_accepted < 0)
+    {
+        std::cerr << "Failed to accept message";
+        return 1;
+    }
+
+    std::string message{message_buffer == "http://localhost:4221"? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
+    
+    if(bytes_send < 0)
+    {
+        std::cerr << "Failed to send message\n";
+        return 1;
+    }
     
     close(server_fd);
     close(client_fd);
