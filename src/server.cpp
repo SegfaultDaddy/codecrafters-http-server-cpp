@@ -10,7 +10,6 @@
 #include <netdb.h>
 
 class SimpleCharBuffer
-
 {
 public:
 
@@ -173,6 +172,8 @@ int main(int argc, char **argv)
    
     SimpleCharBuffer message_buffer{1024};
     ssize_t bytes_accepted{recv(client_fd, message_buffer.rawPointer(), message_buffer.capacity(), MSG_PEEK)};
+
+    std::cout << "Accepted message: " << message_buffer.charPointer() << '\n';
 
     if(bytes_accepted < 0)
     {
