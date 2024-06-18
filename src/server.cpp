@@ -101,7 +101,7 @@ int main(int argc, char **argv)
         }
     }
 
-    std::string message{"HTTP/1.1 200 OK\r\n\r\n"};
+    std::string message{};
     
     switch (found_sequence)
     {
@@ -112,7 +112,6 @@ int main(int argc, char **argv)
         {
             std::size_t response_start{message_buffer.find("echo/") + 5};
             std::string response{message_buffer.substr(response_start, message_buffer.find("HTTP") - 1 - response_start)};
-            std::cout << "Response: " << response << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
                 + response;
         }
