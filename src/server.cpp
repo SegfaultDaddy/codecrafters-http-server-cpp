@@ -81,8 +81,6 @@ int main(int argc, char **argv)
     
     ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(&message_buffer[0]), message_buffer.capacity(), MSG_PEEK)};
 
-    std::cout << "Accepted message: " << message_buffer << '\n';
-
     if(bytes_accepted < 0)
     {
         std::cerr << "Failed to accept message";
@@ -112,6 +110,7 @@ int main(int argc, char **argv)
         {
             std::size_t response_start{message_buffer.find("echo/") + 5};
             std::string response{message_buffer.substr(response_start, message_buffer.find("HTTP") - 1 - response_start)};
+            std::cout << response << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
                 + response;
         }
