@@ -80,6 +80,20 @@ private:
 
 };
 
+bool isStringEqual(const char* str1, const char* str2)
+{
+    bool compare{true};
+    for(std::size_t i{0}; str1[i] != '\0' || str2[i] != '\0')
+    {
+        if(str1[i] != str2[i])
+        {
+            compare = false;
+            break;
+        }
+    }
+    return compare;
+}
+
 int main(int argc, char **argv) 
 {
     std::cout << std::unitbuf;
@@ -149,9 +163,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    auto cmp_value{strcmp("GET / HTTP/1.1\r\n", message_buffer.charPointer())};
-    std::cout << "Compare value: " << cmp_value << '\n';
-    std::string message{cmp_value == 0? "HTTP/1.1 200 OK\r\n\r\n": "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string message{isStringEqual(message_buffer.charPointer(), "GET / HTTP/1.1\r\n") ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
