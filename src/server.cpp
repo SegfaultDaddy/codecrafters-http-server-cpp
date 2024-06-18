@@ -9,98 +9,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-class SimpleCharBuffer
-{
-public:
-
-    SimpleCharBuffer()
-        : memory_capacity{64} 
-    {
-        memory = new char[memory_capacity];
-    }
-
-    SimpleCharBuffer(std::size_t memory_capacity)
-        : memory_capacity{memory_capacity}
-    {
-        memory = new char[memory_capacity];
-    }
-
-    SimpleCharBuffer(const SimpleCharBuffer& that) = delete;
-
-    SimpleCharBuffer& operator=(const SimpleCharBuffer& that) = delete;
-
-    SimpleCharBuffer(SimpleCharBuffer&& that) = delete;
-
-    SimpleCharBuffer& operator=(SimpleCharBuffer&& that) = delete;
-
-    std::size_t capacity() const noexcept
-    {
-
-        return memory_capacity;       
-
-    }
-
-    void reallocate(std::size_t memory_capacity)
-    {
-        if(memory)
-        {
-
-            delete[] memory;
-
-        }
-        this->memory_capacity = memory_capacity;
-        memory = new char[memory_capacity];
-    } 
-
-    void clear()
-    {
-        delete[] memory;
-        memory = nullptr;
-        memory_capacity = 0;
-    }
-
-    char* charPointer()
-    {
-        return memory;
-    }
-
-    void* rawPointer()
-    {
-        return static_cast<void*>(memory);
-    }
-
-    ~SimpleCharBuffer()
-    {
-        if(memory)
-        {
-            delete[] memory;
-        }
-    }
-
-private:
-
-    std::size_t memory_capacity;
-    char* memory;
-
-};
-
-bool isStartSequence(const std::string& start_sequence, const char* ptr)
-{
-    bool exists{true};
-    std::size_t i{0};
-    for(const auto& element : start_sequence)
-    {
-        if(element != ptr[i])
-        {
-            exists = false;
-            break;
-
-        }
-        ++i;
-    }
-    return exists;
-}
-
 int main(int argc, char **argv) 
 {
     std::cout << std::unitbuf;
@@ -169,11 +77,12 @@ int main(int argc, char **argv)
     }
     
     std::cout << "Client connected\n";
-   
-    SimpleCharBuffer message_buffer{1024};
-    ssize_t bytes_accepted{recv(client_fd, message_buffer.rawPointer(), message_buffer.capacity(), MSG_PEEK)};
+ 
+    std::string message_buffer(1024, '\0');
+    
+    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(&message_buffer[0]), message_buffer.capacity(), MSG_PEEK)};
 
-    std::cout << "Accepted message: " << message_buffer.charPointer() << '\n';
+    std::cout << "Accepted message: " << message_buffer << '\n';
 
     if(bytes_accepted < 0)
     {
@@ -182,7 +91,7 @@ int main(int argc, char **argv)
     }
 
     std::string start_sequence{"GET / HTTP/1.1\r\n"};
-    std::string message{isStartSequence(start_sequence, message_buffer.charPointer())? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string message{true ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
