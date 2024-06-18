@@ -65,10 +65,9 @@ int main(int argc, char **argv)
 
     std::cout << "Client connected\n";
  
-
     const std::size_t buffer_capacity{1024};
     char* message_buffer{new char[buffer_capacity]};
-    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(message_buffer), buffer_capacity, MSG_OOB)};
+    ssize_t bytes_accepted{recv(server_fd, static_cast<void*>(message_buffer), buffer_capacity, MSG_OOB)};
     
     if(bytes_accepted < 0)
     {
