@@ -1,3 +1,5 @@
+#include <array>
+#include <cstddef>
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
@@ -8,6 +10,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <ranges>
 
 int main(int argc, char **argv) 
 {
@@ -55,7 +58,6 @@ int main(int argc, char **argv)
     {
 
         std::cerr << "listen failed\n";
-
         return 1;
 
     }
@@ -69,11 +71,8 @@ int main(int argc, char **argv)
 
     if(client_fd < 0)
     {
-
         std::cerr << "Failed to create client socket\n";
-
         return 1;
-
     }
     
     std::cout << "Client connected\n";
@@ -90,9 +89,39 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string start_sequence{"GET /"};
-    std::string message{message_buffer.find(start_sequence) != std::string::npos ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
-    std::cout << "Found sequence: " << message << '\n';
+    std::array<std::string, 2> start_sequence{"GET / ", "GET /echo/"};
+
+    int found_sequence{-1};
+    for (const auto& [index, line] : start_sequence | std::views::enumerate) 
+    {
+        if(message_buffer.find(line) != std::string::npos)
+        {
+            found_sequence = index;
+            break;
+        }
+    }
+
+    std::string message{"HTTP/1.1 200 OK\r\n\r\n"};
+    
+    switch (found_sequence)
+    {
+    case 0:
+        message = "HTTP/1.1 200 OK\r\n\r\n";
+        break;
+    case 1:
+        {
+            std::size_t response_start{message_buffer.find("echo/") + 5};
+            std::string response{message_buffer.substr(response_start, message_buffer.find("HTTP") - 1 - response_start)};
+            std::cout << "Response: " << response << '\n';
+            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
+                + response;
+        }
+        break;
+    default:
+        message = "HTTP/1.1 404 Not Found\r\n\r\n";
+        break;
+    }
+    
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
