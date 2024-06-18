@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     }
 
     std::string start_sequence{"GET / HTTP/1.1\r\n"};
-    std::string message{true ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string message{message_buffer.find(start_sequence) != message_buffer.end() ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
