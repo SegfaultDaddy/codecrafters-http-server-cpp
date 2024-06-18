@@ -119,7 +119,7 @@ int main(int argc, char **argv)
         {
             std::size_t response_start{message_buffer.find("User-Agent: ") + 12};
             std::string response{message_buffer.substr(response_start, 
-                                        std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer))};
+                                        std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer) - response_start)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
                 + response;
         }
