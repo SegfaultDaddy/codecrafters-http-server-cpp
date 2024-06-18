@@ -83,7 +83,7 @@ private:
 bool isStringEqual(const char* str1, const char* str2)
 {
     bool compare{true};
-    for(std::size_t i{0}; str1[i] != '\0' || str2[i] != '\0')
+    for(std::size_t i{0}; str1[i] != '\0' || str2[i] != '\0'; ++i)
     {
         if(str1[i] != str2[i])
         {
