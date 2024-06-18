@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <iterator>
 #include <string>
 #include <cstring>
 #include <unistd.h>
@@ -7,6 +8,77 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
+class SimpleCharBuffer
+{
+public:
+
+    SimpleCharBuffer()
+        : memory_capacity{64} 
+    {
+        memory = new char[memory_capacity];
+    }
+
+    SimpleCharBuffer(std::size_t memory_capacity)
+        : memory_capacity{memory_capacity}
+    {
+        memory = new char[memory_capacity];
+    }
+
+    SimpleCharBuffer(const SimpleCharBuffer& that) = delete;
+
+    SimpleCharBuffer& operator=(const SimpleCharBuffer& that) = delete;
+
+    SimpleCharBuffer(SimpleCharBuffer&& that) = delete;
+
+    SimpleCharBuffer& operator=(SimpleCharBuffer&& that) = delete;
+    
+    std::size_t capacity() const noexcept
+    {
+        return memory_capacity;       
+    }
+
+    void reallocate(std::size_t memory_capacity)
+    {
+        if(memory)
+        {
+            delete[] memory;
+        }
+        this->memory_capacity = memory_capacity;
+        memory = new char[memory_capacity];
+    } 
+
+    void clear()
+    {
+        delete[] memory;
+        memory = nullptr;
+        memory_capacity = 0;
+    }
+
+    char* charPointer()
+    {
+        return memory;
+    }
+
+    void* rawPointer()
+    {
+        return static_cast<void*>(memory);
+    }
+
+    ~SimpleCharBuffer()
+    {
+        if(memory)
+        {
+            delete[] memory;
+        }
+    }
+
+private:
+    
+    std::size_t memory_capacity;
+    char* memory;
+
+};
 
 int main(int argc, char **argv) 
 {
@@ -64,12 +136,16 @@ int main(int argc, char **argv)
     }
 
     std::cout << "Client connected\n";
- 
-    const std::size_t buffer_capacity{1024};
-    char* message_buffer{new char[buffer_capacity]};
-    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(message_buffer), buffer_capacity, MSG_PEEK)};
+
+    SimpleCharBuffer message_buffer{1024};
+    ssize_t bytes_accepted{recv(client_fd, message_buffer.rawPointer(), message_buffer.capacity(), MSG_PEEK)};
     
-    std::cout << "Message: " << message_buffer << '\n';
+    std::cout << "Message: " << message_buffer.charPointer() << '\n';
+
+    for(auto i{message_buffer.charPointer()}; *i != '\0'; ++i)
+    {
+        std::cout << "("<< *i << ")\n" << '\n';
+    }
 
     if(bytes_accepted < 0)
     {
@@ -77,7 +153,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string message{message_buffer == "http://localhost:4221"? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string message{"Hello"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
