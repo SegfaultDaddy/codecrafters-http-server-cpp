@@ -52,12 +52,23 @@ int main(int argc, char **argv)
     
     struct sockaddr_in client_addr;
     int client_addr_len{sizeof(client_addr)};
+    
     std::cout << "Waiting for a client to connect...\n";
+    
     int client_fd{accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len)};
+    
+    if(client_fd < 0)
+    {
+        std::cerr << "Failed to create client socket\n";
+        return 1;
+    }
+
     std::string message{"HTTP/1.1 200 OK\r\n\r\n"};
-    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_OOB)};
+    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     std::cout << "Client connected\n";
+    
     close(server_fd);
     close(client_fd);
+
   return 0;
 }
