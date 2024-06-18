@@ -149,7 +149,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string message{strcmp(" GET / HTTP/1.1", message_buffer.charPointer()) == 0? "HTTP/1.1 200 OK\r\n\r\n": "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string message{strcmp("GET / HTTP/1.1", message_buffer.charPointer()) == 0? "HTTP/1.1 200 OK\r\n\r\n": "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
