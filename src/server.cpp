@@ -149,10 +149,21 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    std::string request_message{"GET / HTTP/1.1\r\n"};
-    auto str_cmp{message_buffer.charPointer() == request_message};
-    std::cout << "Compare: " << str_cmp << '\n';
-    std::string message{str_cmp ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string sequence_to_find{"GET / HTTP/1.1\r\n"};
+    
+    bool found{true};
+    std::size_t i{0};
+    for(const auto& element : sequence_to_find)
+    {
+        if(element != message_buffer.charPointer()[i])
+        {
+            found = false;
+            break;
+        }
+        ++i;
+    }
+
+    std::string message{found? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
