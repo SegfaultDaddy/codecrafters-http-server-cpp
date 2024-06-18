@@ -79,6 +79,7 @@ private:
     char* memory;
 
 };
+ 
 
 int main(int argc, char **argv) 
 {
