@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     
     ssize_t bytes_accepted{recv(client_fd, message_buffer.rawPointer(), message_buffer.capacity(), MSG_PEEK)};
     
-    std::cout << "Message: " << message_buffer.charPointer() << '\n';
+    std::cout << "Message: (" << message_buffer.charPointer() << ")\n";
 
     if(bytes_accepted < 0)
     {
