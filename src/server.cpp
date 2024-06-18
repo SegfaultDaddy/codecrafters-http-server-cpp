@@ -138,14 +138,10 @@ int main(int argc, char **argv)
     std::cout << "Client connected\n";
 
     SimpleCharBuffer message_buffer{1024};
+    
     ssize_t bytes_accepted{recv(client_fd, message_buffer.rawPointer(), message_buffer.capacity(), MSG_PEEK)};
     
     std::cout << "Message: " << message_buffer.charPointer() << '\n';
-
-    for(auto i{message_buffer.charPointer()}; *i != '\0'; ++i)
-    {
-        std::cout << "("<< *i << ")\n" << '\n';
-    }
 
     if(bytes_accepted < 0)
     {
@@ -153,7 +149,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string message{"Hello"};
+    std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
