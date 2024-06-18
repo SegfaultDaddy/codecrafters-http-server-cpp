@@ -151,8 +151,8 @@ int main(int argc, char **argv)
     
     std::string request_message{"GET / HTTP/1.1\r\n"};
     auto str_cmp{message_buffer.charPointer() == request_message};
-    std::cout << str_cmp << '\n';
-    std::string message{isStringEqual() ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::cout << "Compare: " << str_cmp << '\n';
+    std::string message{true ? "HTTP/1.1 200 OK\r\n\r\n" : "HTTP/1.1 404 Not Found\r\n\r\n"};
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
     
     if(bytes_send < 0)
