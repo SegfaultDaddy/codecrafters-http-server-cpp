@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <iostream>
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::array<std::string, 2> start_sequence{"GET / ", "GET /echo/"};
+    std::array<std::string, 3> start_sequence{"GET / ", "GET /echo/", "GET /user-agent "};
 
     int found_sequence{-1};
     for (const auto& [index, line] : start_sequence | std::views::enumerate) 
@@ -110,6 +111,15 @@ int main(int argc, char **argv)
         {
             std::size_t response_start{message_buffer.find("echo/") + 5};
             std::string response{message_buffer.substr(response_start, message_buffer.find("HTTP") - 1 - response_start)};
+            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
+                + response;
+        }
+        break;
+    case 2:
+        {
+            std::size_t response_start{message_buffer.find("User-Agent: ") + 12};
+            std::string response{message_buffer.substr(response_start, 
+                                        std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer))};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
                 + response;
         }
