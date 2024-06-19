@@ -8,7 +8,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
-#include <mutex>
 #include <string>
 #include <cstring>
 #include <unistd.h>
@@ -166,6 +165,7 @@ std::string get_response_message(const std::string& request_message, const std::
     case 3:
         {
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
+            std::cout << "Nice\n";
             if(read_data.has_value())
             {
                 message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
