@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
+#include <mutex>
 #include <string>
 #include <cstring>
 #include <unistd.h>
@@ -89,6 +90,11 @@ int main(int argc, char **argv)
 
         threads[index] = std::jthread{send_server_response, std::ref(clients[index]), server_fd} ;   
     }
+
+    for(std::size_t index{0}; index < max_clients; ++index)
+    {
+        close(clients[index].file_descriptor);
+    } 
 
     close(server_fd);
     return 0;
