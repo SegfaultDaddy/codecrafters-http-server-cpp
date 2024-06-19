@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     }
 
     std::array<Client, max_clients> clients;
-    std::array<std::jthread, max_clients> threads; 
+    std::array<std::thread, max_clients> threads; 
     
     for(std::size_t index{0}; index < max_clients; ++index)
     {
@@ -88,7 +88,8 @@ int main(int argc, char **argv)
         
         std::cout << "Server connected: " << clients[index].file_descriptor << '\n';
 
-        threads[index] = std::jthread{send_server_response, std::ref(clients[index]), server_fd} ;   
+        threads[index] = std::thread{send_server_response, std::ref(clients[index]), server_fd};
+        threads[index].join();
     }
 
     for(std::size_t index{0}; index < max_clients; ++index)
