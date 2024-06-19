@@ -148,7 +148,6 @@ std::optional<std::string> read_file(const std::string& filename, const std::str
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};    
-    std::cout << "Here\n";
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
@@ -168,6 +167,7 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 3:
         {
+            std::cout << "HERE\n"; 
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
             if(read_data.has_value())
             {
@@ -178,6 +178,7 @@ std::string get_response_message(const std::string& request_message, const std::
     default:
         break;
     }
+    std::cout << "Here\n"; 
     return message;
 }
 
