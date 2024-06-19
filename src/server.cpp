@@ -36,8 +36,6 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    std::cout << "Logs from your program will appear here!\n";
-
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
@@ -85,8 +83,6 @@ int main(int argc, char **argv)
             std::cerr << "Failed to create client socket\n";
             return 1;
         }
-        
-        std::cout << "Server connected: " << clients[index].file_descriptor << '\n';
 
         threads[index] = std::thread{send_server_response, clients[index].file_descriptor, server_fd};
         threads[index].join();
@@ -151,9 +147,7 @@ std::string get_response_message(const std::string& request_message)
 
 int send_server_response(int client_file_descriptor, int server_file_descriptor)
 {
- 
     std::string request_message_buffer(1024, '\0');
-    
     ssize_t bytes_accepted{recv(client_file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
 
     if(bytes_accepted < 0)
@@ -163,9 +157,7 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
     }
 
     std::string message{get_response_message(request_message_buffer)};
-
-    std::cout << "Sending response";
-
+    std::cout << "Accepted message: " << message << '\n';
     ssize_t bytes_send{send(client_file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
