@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     
     for(std::size_t index{0}; index < max_clients; ++index)
     {
-        clients[index].file_descriptor = accept(server_fd, (struct sockaddr *) &clients[index].address, (socklen_t *) &clients[index].address_length); 
+        clients[index].file_descriptor = accept(server_fd, (struct sockaddr *)&clients[index].address, (socklen_t *)&clients[index].address_length); 
         
         if(clients[index].file_descriptor < 0)
         {
@@ -163,6 +163,8 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
     }
 
     std::string message{get_response_message(request_message_buffer)};
+
+    std::cout << "Sending response";
 
     ssize_t bytes_send{send(client_file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
