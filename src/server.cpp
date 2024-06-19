@@ -73,11 +73,11 @@ int main(int argc, char **argv)
     }
 
     std::array<Client, max_clients> clients;
-    std::array<std::thread, max_clients> threads; 
+    std::array<std::jthread, max_clients> threads; 
     
     for(std::size_t index{0}; index < max_clients; ++index)
     {
-        threads[index] = std::thread{connect_client_to_server, std::ref(clients[index]), server_fd} ;   
+        threads[index] = std::jthread{connect_client_to_server, std::ref(clients[index]), server_fd} ;   
     }
 
     close(server_fd);
