@@ -17,7 +17,7 @@
 #include <string_view>
 #include <thread>
 
-constexpr std::size_t max_clients{3};
+constexpr std::size_t max_clients{8};
 
 struct Client
 {
