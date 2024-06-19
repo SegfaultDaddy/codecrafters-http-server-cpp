@@ -14,7 +14,7 @@
 #include <ranges>
 #include <string_view>
 
-std::size_t find_start_sequnce_index(std::string_view request_message);
+std::size_t find_start_sequnce_index(const std::string& request_message);
 
 int main(int argc, char **argv) 
 {
