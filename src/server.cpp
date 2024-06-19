@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
 int find_start_sequnce_index(const std::string& request_message)
 {
-    static const std::array<std::string_view, 3> start_sequence{"GET / ", "GET /echo/", "GET /user-agent "};
+    static const std::array<std::string_view, 4> start_sequence{"GET / ", "GET /echo/", "GET /user-agent ", "GET /files"};
     for (const auto& [index, line] : start_sequence | std::views::enumerate) 
     {
         if(request_message.find(line) != std::string::npos)
@@ -138,6 +138,12 @@ std::string get_response_message(const std::string& request_message)
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
         break;
+    case 3:
+        {
+            std::string response{find_string_in_between("files/", " HTTP", request_message)};
+            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+        }
+        break;
     default:
         message = "HTTP/1.1 404 Not Found\r\n\r\n";
         break;
@@ -156,7 +162,6 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
         return 1;
     }
 
-    std::cout << "Accepted message: " << request_message_buffer << '\n';
     std::string message{get_response_message(request_message_buffer)};
     ssize_t bytes_send{send(client_file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
