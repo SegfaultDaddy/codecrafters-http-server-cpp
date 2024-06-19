@@ -118,7 +118,6 @@ int find_start_sequnce_index(const std::string& request_message)
     {
         if(request_message.find(line) != std::string::npos)
         {
-            std::cout << "INDEX: " << index << '\n';
             return index;
         }
     }
@@ -177,6 +176,11 @@ std::string get_response_message(const std::string& request_message, const std::
         }
         break;
     case 4:
+        {
+            std::string text{find_string_in_between("\r\n\r\n", "\0", request_message)};
+            std::cout << text << '\n';
+            message = "HTTP/1.1 201 Created\r\n\r\n";
+        }
         break;
     default:
         break;
