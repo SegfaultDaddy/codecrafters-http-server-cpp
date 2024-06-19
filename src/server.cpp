@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
@@ -13,10 +14,21 @@
 #include <netdb.h>
 #include <ranges>
 #include <string_view>
+#include <thread>
+
+constexpr std::size_t max_clients{3};
+
+struct Client
+{
+    struct sockaddr_in address;
+    int address_length{sizeof(client_address)};
+    int file_descriptor;
+};
 
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
 std::string get_response_message(const std::string& request_message);
+int connect_client_to_server(Client& , int server_file_descriptor);
 
 int main(int argc, char **argv) 
 {
@@ -60,43 +72,15 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    struct sockaddr_in client_addr;
-    int client_addr_len{sizeof(client_addr)};
-
-    std::cout << "Waiting for a client to connect...\n";
-
-    int client_fd{accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len)};
-
-    if(client_fd < 0)
-    {
-        std::cerr << "Failed to create client socket\n";
-        return 1;
-    }
+    std::array<Client, max_clients> clients;
+    std::array<std::thread, max_clients> threads; 
     
-    std::cout << "Client connected\n";
- 
-    std::string request_message_buffer(1024, '\0');
-    
-    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
-
-    if(bytes_accepted < 0)
+    for(std::size_t index{0}; index < max_clients; ++index)
     {
-        std::cerr << "Failed to accept message";
-        return 1;
-    }
-
-    std::string message{get_response_message(request_message_buffer)};
-
-    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
-
-    if(bytes_send < 0)
-    {
-        std::cerr << "Failed to send message\n";
-        return 1;
+        threads[index] = std::thread{connect_client_to_server, std::ref(clients[index]), server_fd} ;   
     }
 
     close(server_fd);
-    close(client_fd);
     return 0;
 }
 
@@ -146,4 +130,39 @@ std::string get_response_message(const std::string& request_message)
         break;
     }
     return message;
+}
+
+int connect_client_to_server(Client& instance, int server_file_descriptor)
+{
+    instance.file_descriptor = accept(server_file_descriptor, (struct sockaddr *) &instance.address, (socklen_t *) &instance.address_length);
+    
+    if(instance.file_descriptor < 0)
+    {
+        std::cerr << "Failed to create client socket\n";
+        return 1;
+    }
+    
+    std::cout << "Client connected\n";
+ 
+    std::string request_message_buffer(1024, '\0');
+    
+    ssize_t bytes_accepted{recv(instance.file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
+
+    if(bytes_accepted < 0)
+    {
+        std::cerr << "Failed to accept message";
+        return 1;
+    }
+
+    std::string message{get_response_message(request_message_buffer)};
+
+    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
+
+    if(bytes_send < 0)
+    {
+        std::cerr << "Failed to send message\n";
+        return 1;
+    }
+
+    return 0;
 }
