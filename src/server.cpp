@@ -151,8 +151,9 @@ std::string get_response_message(const std::string& request_message, const std::
         {
             std::string filename{directory_path + find_string_in_between("files/", " HTTP", request_message)};
             std::ifstream file{filename};
-            std::cout << "Is open: " << file.is_open() << '\n';
-            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(filename.length()) + "\r\n\r\n" + filename;
+            std::string response{std::istream_iterator<char>{file}, std::istream_iterator<char>{}};
+            std::cout << "Response: " << response << '\n';
+            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
         break;
     default:
@@ -183,4 +184,5 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
     }
 
     return 0;
+            std::cout << filename << '\n';
 }
