@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <complex>
 #include <cstddef>
 #include <fstream>
 #include <functional>
@@ -30,17 +31,18 @@ struct Client
 
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
-std::string get_response_message(const std::string& request_message);
-int send_server_response(int client_file_descriptor, int server_file_descriptor);
+std::string get_response_message(const std::string& request_message, const std::string& directory_path);
+int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path);
 
 int main(int argc, char **argv) 
 {
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
+    std::string directory_path{};
     if(std::strcmp(argv[1], "--directory") == 0)
     {
-        std::cout << "Directory: " << argv[2] << '\n';
+        directory_path = argv[3];
     }
 
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
@@ -91,7 +93,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        threads[index] = std::thread{send_server_response, clients[index].file_descriptor, server_fd};
+        threads[index] = std::thread{send_server_response, clients[index].file_descriptor, server_fd, directory_path};
         threads[index].join();
     }
 
@@ -125,7 +127,7 @@ std::string find_string_in_between(const std::string& first, const std::string& 
     return string_in_between;
 }
 
-std::string get_response_message(const std::string& request_message)
+std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
     std::string message{};    
     switch (find_start_sequnce_index(request_message))
@@ -147,9 +149,8 @@ std::string get_response_message(const std::string& request_message)
         break;
     case 3:
         {
-            std::string filename{find_string_in_between("files/", " HTTP", request_message)};
-            std::ifstream file{filename};
-            std::cout <<"Is file found: " << filename << ' ' << file.is_open() << '\n';
+            std::string filename{directory_path + "/" + find_string_in_between("files/", " HTTP", request_message)};
+            std::cout << filename << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(filename.length()) + "\r\n\r\n" + filename;
         }
         break;
@@ -160,7 +161,7 @@ std::string get_response_message(const std::string& request_message)
     return message;
 }
 
-int send_server_response(int client_file_descriptor, int server_file_descriptor)
+int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path)
 {
     std::string request_message_buffer(1024, '\0');
     ssize_t bytes_accepted{recv(client_file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
