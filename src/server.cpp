@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <cstdlib>
@@ -140,8 +141,10 @@ std::string get_response_message(const std::string& request_message)
         break;
     case 3:
         {
-            std::string response{find_string_in_between("files/", " HTTP", request_message)};
-            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            std::string filename{find_string_in_between("files/", " HTTP", request_message)};
+            std::ifstream file{filename};
+            std::cout <<"Is found: " << file.is_open() << '\n';
+            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(filename.length()) + "\r\n\r\n" + filename;
         }
         break;
     default:
@@ -164,7 +167,6 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
 
     std::cout << "Accepted message: " << request_message_buffer << '\n';
     std::string response_message{get_response_message(request_message_buffer)};
-    std::cout << "Response message: " << response_message << '\n';
     ssize_t bytes_send{send(client_file_descriptor, response_message.c_str(), response_message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
