@@ -135,15 +135,15 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
 {
     std::ifstream file{directory_path + filename};
-    std::cout << "Here"<<'\n';
     if(file.is_open())
     {
+        std::cout << "WHAT?\n";
         file >> std::noskipws;
         std::string read_data{std::istream_iterator<char>{file}, std::istream_iterator<char>{}};
         file.close();
         return read_data;
     }
-    file.close();
+    std::cout << "NO?";
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
