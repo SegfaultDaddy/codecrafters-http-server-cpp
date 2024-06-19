@@ -21,7 +21,7 @@
 #include <filesystem>
 #include <optional>
 
-constexpr std::size_t max_clients{9};
+constexpr std::size_t max_clients{2};
 
 struct Client
 {
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     {
         directory_path = argv[2];
     }
-    std::cout << directory_path << '\n';   
+
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
@@ -165,7 +165,6 @@ std::string get_response_message(const std::string& request_message, const std::
     case 3:
         {
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
-            std::cout << "Nice\n";
             if(read_data.has_value())
             {
                 message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
