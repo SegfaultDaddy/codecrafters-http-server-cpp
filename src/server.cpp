@@ -12,6 +12,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <ranges>
+#include <string_view>
+
+std::size_t find_start_sequnce_index(std::string_view request_message);
 
 int main(int argc, char **argv) 
 {
@@ -32,11 +35,8 @@ int main(int argc, char **argv)
 
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) 
     {
-
         std::cerr << "setsockopt failed\n";
-
         return 1;
-
     }
 
     struct sockaddr_in server_addr;
@@ -46,21 +46,16 @@ int main(int argc, char **argv)
     
     if (bind(server_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) != 0) 
     {
-
         std::cerr << "Failed to bind to port 4221\n";
-
         return 1;
-
     }
 
     int connection_backlog{5};
 
     if (listen(server_fd, connection_backlog) != 0) 
     {
-
         std::cerr << "listen failed\n";
         return 1;
-
     }
 
     struct sockaddr_in client_addr;
@@ -88,17 +83,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::array<std::string, 3> start_sequence{"GET / ", "GET /echo/", "GET /user-agent "};
-
-    int found_sequence{-1};
-    for (const auto& [index, line] : start_sequence | std::views::enumerate) 
-    {
-        if(message_buffer.find(line) != std::string::npos)
-        {
-            found_sequence = index;
-            break;
-        }
-    }
+    int found_sequence{find_start_sequnce_index(message_buffer)};
 
     std::string message{};
     
@@ -119,7 +104,7 @@ int main(int argc, char **argv)
         {
             std::size_t response_start{message_buffer.find("User-Agent: ") + 12};
             std::string response{message_buffer.substr(response_start, 
-                                        std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer) - response_start)};
+                std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer) - response_start)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
                 + response;
         }
@@ -133,14 +118,24 @@ int main(int argc, char **argv)
 
     if(bytes_send < 0)
     {
-
         std::cerr << "Failed to send message\n";
-
         return 1;
-
     }
 
     close(server_fd);
     close(client_fd);
     return 0;
+}
+
+std::size_t find_start_sequnce_index(const std::string& request_message)
+{
+    static const std::array<std::string_view, 3> start_sequence{"GET / ", "GET /echo/", "GET /user-agent "};
+    for (const auto& [index, line] : start_sequence | std::views::enumerate) 
+    {
+        if(request_message.find(line) != std::string::npos)
+        {
+            return index;
+        }
+    }
+    return -1;
 }
