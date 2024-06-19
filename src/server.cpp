@@ -21,7 +21,7 @@
 #include <filesystem>
 #include <optional>
 
-constexpr std::size_t max_clients{2};
+constexpr std::size_t max_clients{9};
 
 struct Client
 {
