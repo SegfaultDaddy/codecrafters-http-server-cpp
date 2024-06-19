@@ -140,6 +140,7 @@ std::string get_response_message(const std::string& request_message)
         {
             std::string response{find_string_in_between("User-Agent: ", "\r\n", request_message)};
             std::cout << "Response: "<< response << '\n';
+            std::cout << "Response size: " << response.length() << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
         break;
