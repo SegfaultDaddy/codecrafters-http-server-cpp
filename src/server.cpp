@@ -134,8 +134,8 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
 {
-    std::cout << "here\n";
     std::ifstream file{directory_path + filename};
+    std::cout << "Here"<<'\n';
     if(file.is_open())
     {
         file >> std::noskipws;
