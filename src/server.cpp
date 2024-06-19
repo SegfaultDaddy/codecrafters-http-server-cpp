@@ -85,6 +85,8 @@ int main(int argc, char **argv)
             return 1;
         }
         
+        std::cout << "Server connected\n";
+
         threads[index] = std::jthread{send_server_response, std::ref(clients[index]), server_fd} ;   
     }
 
