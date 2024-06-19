@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 int find_start_sequnce_index(const std::string& request_message)
 {
-    static const std::array<std::string_view, 4> start_sequence{"GET / ", "GET /echo/", "GET /user-agent ", "GET /files"};
+    static const std::array<std::string_view, 5> start_sequence{"GET / ", "GET /echo/", "GET /user-agent ", "GET /files", "POST /files"};
     for (const auto& [index, line] : start_sequence | std::views::enumerate) 
     {
         if(request_message.find(line) != std::string::npos)
@@ -175,6 +175,8 @@ std::string get_response_message(const std::string& request_message, const std::
             }
         }
         break;
+    case 4:
+        break;
     default:
         break;
     }
@@ -191,6 +193,8 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
         std::cerr << "Failed to accept message";
         return 1;
     }
+
+    std::cout << "Request message: " << request_message_buffer << '\n';
 
     std::string response_message{get_response_message(request_message_buffer, directory_path)};
  
