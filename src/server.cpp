@@ -21,7 +21,7 @@ constexpr std::size_t max_clients{3};
 struct Client
 {
     struct sockaddr_in address;
-    int address_length{sizeof(client_address)};
+    int address_length{sizeof(address)};
     int file_descriptor;
 };
 
@@ -156,7 +156,7 @@ int connect_client_to_server(Client& instance, int server_file_descriptor)
 
     std::string message{get_response_message(request_message_buffer)};
 
-    ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
+    ssize_t bytes_send{send(instance.file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
     {
