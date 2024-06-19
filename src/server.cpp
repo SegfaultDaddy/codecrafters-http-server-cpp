@@ -20,6 +20,7 @@
 #include <string_view>
 #include <thread>
 #include <filesystem>
+#include <optional>
 
 constexpr std::size_t max_clients{1};
 
@@ -32,6 +33,7 @@ struct Client
 
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
+std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
 int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path);
 
@@ -128,9 +130,22 @@ std::string find_string_in_between(const std::string& first, const std::string& 
     return string_in_between;
 }
 
+std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
+{
+    std::ifstream file{directory_path + filename};
+    if(file.is_open())
+    {
+        file >> std::noskipws;
+        std::string read_data{std::istream_iterator<char>{file}, std::istream_iterator<char>{}};
+        file.close();
+        return read_data;
+    }
+    file.close();
+}
+
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
-    std::string message{};    
+    std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};    
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
@@ -150,16 +165,14 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 3:
         {
-            std::string filename{directory_path + find_string_in_between("files/", " HTTP", request_message)};
-            std::ifstream file{filename};
-            file >> std::noskipws;
-            std::string response{std::istream_iterator<char>{file}, std::istream_iterator<char>{}};
-            std::cout << "Response: " << response << '\n';
-            message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
+            if(read_data.has_value())
+            {
+                message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
+            }
         }
         break;
     default:
-        message = "HTTP/1.1 404 Not Found\r\n\r\n";
         break;
     }
     return message;
