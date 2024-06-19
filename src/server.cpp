@@ -38,9 +38,9 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    if(std::strcmp(argv[2], "--directory") == 0)
+    if(std::strcmp(argv[1], "--directory") == 0)
     {
-        std::cout << "Directory: " << argv[3] << '\n';
+        std::cout << "Directory: " << argv[2] << '\n';
     }
 
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
@@ -171,7 +171,6 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
         return 1;
     }
 
-    std::cout << "Accepted message: " << request_message_buffer << '\n';
     std::string response_message{get_response_message(request_message_buffer)};
     ssize_t bytes_send{send(client_file_descriptor, response_message.c_str(), response_message.length(), MSG_EOR)};
 
