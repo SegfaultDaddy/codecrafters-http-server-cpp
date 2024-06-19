@@ -117,8 +117,7 @@ int find_start_sequnce_index(const std::string& request_message)
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line)
 {
     std::size_t start_index{line.find(first) + first.length()};
-    std::size_t string_length{line.substr(start_index).find(second) - start_index - 1};
-    std::cout << "string length: " << line.substr(start_index).find(second) << '\n';
+    std::size_t string_length{line.substr(start_index).find(second)};
     std::string string_in_between{line.substr(start_index, string_length)};
     return string_in_between;
 }
