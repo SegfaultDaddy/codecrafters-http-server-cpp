@@ -184,8 +184,9 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 4:
         {
-            std::string text{request_message.substr(request_message.find("\r\n\r\n") + 4)};
-                std::cout << text.find('\0') << '\n';
+            std::size_t start_index{request_message.find("\r\n\r\n") + 4};
+            std::string text{request_message.substr(start_index, request_message.find('\0'))};
+                std::cout << request_message.find('\0') << '\n';
             write_file(find_string_in_between("files/", " HTTP", request_message), directory_path, text);
             message = "HTTP/1.1 201 Created\r\n\r\n";
         }
