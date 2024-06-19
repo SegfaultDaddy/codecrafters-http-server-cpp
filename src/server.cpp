@@ -183,6 +183,7 @@ std::string get_response_message(const std::string& request_message, const std::
 
 int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path)
 {
+    std::cout << "Here";
     std::string request_message_buffer(1024, '\0');
     ssize_t bytes_accepted{recv(client_file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
 
