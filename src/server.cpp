@@ -176,6 +176,7 @@ std::string get_response_message(const std::string& request_message, const std::
         }
         break;
     case 4:
+        std::cout << "Here\n";
         break;
     default:
         break;
