@@ -37,6 +37,10 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
+    for(int index{0}; index < argc; ++index)
+    {
+        std::cout << argv[index] << '\n';
+    }
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
@@ -143,7 +147,7 @@ std::string get_response_message(const std::string& request_message)
         {
             std::string filename{find_string_in_between("files/", " HTTP", request_message)};
             std::ifstream file{filename};
-            std::cout <<"Is found: " << filename << file.is_open() << '\n';
+            std::cout <<"Is file found: " << filename << ' ' << file.is_open() << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(filename.length()) + "\r\n\r\n" + filename;
         }
         break;
