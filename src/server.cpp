@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     {
         directory_path = argv[3];
     }
-
+    std::cout << "directory_path: " << directory_path << '\n';
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
