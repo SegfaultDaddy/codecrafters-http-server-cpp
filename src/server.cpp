@@ -14,7 +14,9 @@
 #include <ranges>
 #include <string_view>
 
-std::size_t find_start_sequnce_index(const std::string& request_message);
+int find_start_sequnce_index(const std::string& request_message);
+std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
+std::string get_response_message(const std::string& request_message);
 
 int main(int argc, char **argv) 
 {
@@ -73,9 +75,9 @@ int main(int argc, char **argv)
     
     std::cout << "Client connected\n";
  
-    std::string message_buffer(1024, '\0');
+    std::string request_message_buffer(1024, '\0');
     
-    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(&message_buffer[0]), message_buffer.capacity(), MSG_PEEK)};
+    ssize_t bytes_accepted{recv(client_fd, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
 
     if(bytes_accepted < 0)
     {
@@ -83,37 +85,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    int found_sequence{find_start_sequnce_index(message_buffer)};
+    std::string message{get_response_message(request_message_buffer)};
 
-    std::string message{};
-    
-    switch (found_sequence)
-    {
-    case 0:
-        message = "HTTP/1.1 200 OK\r\n\r\n";
-        break;
-    case 1:
-        {
-            std::size_t response_start{message_buffer.find("echo/") + 5};
-            std::string response{message_buffer.substr(response_start, message_buffer.find("HTTP") - 1 - response_start)};
-            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
-                + response;
-        }
-        break;
-    case 2:
-        {
-            std::size_t response_start{message_buffer.find("User-Agent: ") + 12};
-            std::string response{message_buffer.substr(response_start, 
-                std::find(std::begin(message_buffer) + response_start, std::end(message_buffer), '\r') - std::begin(message_buffer) - response_start)};
-            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n"
-                + response;
-        }
-        break;
-    default:
-        message = "HTTP/1.1 404 Not Found\r\n\r\n";
-        break;
-    }
-    
     ssize_t bytes_send{send(client_fd, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
@@ -127,7 +100,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-std::size_t find_start_sequnce_index(const std::string& request_message)
+int find_start_sequnce_index(const std::string& request_message)
 {
     static const std::array<std::string_view, 3> start_sequence{"GET / ", "GET /echo/", "GET /user-agent "};
     for (const auto& [index, line] : start_sequence | std::views::enumerate) 
@@ -138,4 +111,39 @@ std::size_t find_start_sequnce_index(const std::string& request_message)
         }
     }
     return -1;
+}
+
+std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line)
+{
+    std::size_t start_index{line.find(first) + first.length()};
+    std::size_t string_length{line.substr(start_index).find(second) - start_index - 1};
+    std::string string_in_between{line.substr(start_index, string_length)};
+    return string_in_between;
+}
+
+std::string get_response_message(const std::string& request_message)
+{
+    std::string message{};    
+    switch (find_start_sequnce_index(request_message))
+    {
+    case 0:
+        message = "HTTP/1.1 200 OK\r\n\r\n";
+        break;
+    case 1:
+        {
+            std::string response{find_string_in_between("echo/", " HTTP", request_message)};
+            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+        }
+        break;
+    case 2:
+        {
+            std::string response{find_string_in_between("User-Agent: ", "\r\n", request_message)};
+            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+        }
+        break;
+    default:
+        message = "HTTP/1.1 404 Not Found\r\n\r\n";
+        break;
+    }
+    return message;
 }
