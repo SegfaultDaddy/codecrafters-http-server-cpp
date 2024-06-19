@@ -88,7 +88,7 @@ int main(int argc, char **argv)
         
         std::cout << "Server connected: " << clients[index].file_descriptor << '\n';
 
-        threads[index] = std::thread{send_server_response, std::ref(clients[index]), server_fd};
+        threads[index] = std::thread{send_server_response, clients[index].file_descriptor, server_fd};
         threads[index].join();
     }
 
@@ -149,12 +149,12 @@ std::string get_response_message(const std::string& request_message)
     return message;
 }
 
-int send_server_response(Client& instance, int server_file_descriptor)
+int send_server_response(int client_file_descriptor, int server_file_descriptor)
 {
  
     std::string request_message_buffer(1024, '\0');
     
-    ssize_t bytes_accepted{recv(instance.file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
+    ssize_t bytes_accepted{recv(client_file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
 
     if(bytes_accepted < 0)
     {
@@ -164,7 +164,7 @@ int send_server_response(Client& instance, int server_file_descriptor)
 
     std::string message{get_response_message(request_message_buffer)};
 
-    ssize_t bytes_send{send(instance.file_descriptor, message.c_str(), message.length(), MSG_EOR)};
+    ssize_t bytes_send{send(client_file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
     {
