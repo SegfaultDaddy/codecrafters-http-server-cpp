@@ -28,7 +28,7 @@ struct Client
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
 std::string get_response_message(const std::string& request_message);
-int connect_client_to_server(Client& , int server_file_descriptor);
+int send_server_response(Client& , int server_file_descriptor);
 
 int main(int argc, char **argv) 
 {
@@ -77,7 +77,15 @@ int main(int argc, char **argv)
     
     for(std::size_t index{0}; index < max_clients; ++index)
     {
-        threads[index] = std::jthread{connect_client_to_server, std::ref(clients[index]), server_fd} ;   
+        clients[index].file_descriptor = accept(server_fd, (struct sockaddr *) &clients[index].address, (socklen_t *) &clients[index].address_length); 
+        
+        if(clients[index].file_descriptor < 0)
+        {
+            std::cerr << "Failed to create client socket\n";
+            return 1;
+        }
+        
+        threads[index] = std::jthread{send_server_response, std::ref(clients[index]), server_fd} ;   
     }
 
     close(server_fd);
@@ -132,17 +140,8 @@ std::string get_response_message(const std::string& request_message)
     return message;
 }
 
-int connect_client_to_server(Client& instance, int server_file_descriptor)
+int send_server_response(Client& instance, int server_file_descriptor)
 {
-    instance.file_descriptor = accept(server_file_descriptor, (struct sockaddr *) &instance.address, (socklen_t *) &instance.address_length);
-    
-    if(instance.file_descriptor < 0)
-    {
-        std::cerr << "Failed to create client socket\n";
-        return 1;
-    }
-    
-    std::cout << "Client connected\n";
  
     std::string request_message_buffer(1024, '\0');
     
