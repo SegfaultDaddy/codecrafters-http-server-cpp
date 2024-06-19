@@ -17,6 +17,7 @@
 #include <ranges>
 #include <string_view>
 #include <thread>
+#include <filesystem>
 
 constexpr std::size_t max_clients{1};
 
@@ -37,10 +38,8 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    for(int index{0}; index < argc; ++index)
-    {
-        std::cout << argv[index] << '\n';
-    }
+    std::filesystem::path path{argv[3]};
+    std::cout << path << '\n';
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
