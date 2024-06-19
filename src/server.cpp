@@ -184,14 +184,15 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
 {
     std::string request_message_buffer(1024, '\0');
     ssize_t bytes_accepted{recv(client_file_descriptor, static_cast<void*>(&request_message_buffer[0]), request_message_buffer.capacity(), MSG_PEEK)};
-    std::cout << "here";
+    
     if(bytes_accepted < 0)
     {
         std::cerr << "Failed to accept message";
         return 1;
     }
-    std::cout << "HERE";
+
     std::string response_message{get_response_message(request_message_buffer, directory_path)};
+    std::cout << "HERE";
     ssize_t bytes_send{send(client_file_descriptor, response_message.c_str(), response_message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
