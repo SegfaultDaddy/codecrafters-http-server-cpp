@@ -150,7 +150,7 @@ std::optional<std::string> read_file(const std::string& filename, const std::str
 void write_file(const std::string& filename, const std::string& directory_path, const std::string& text)
 {
     std::ofstream file{directory_path + filename};
-    std::cout << "is_open: " << file.is_open() << '\n';
+    std::copy(text.begin(), text.end(), std::ostream_iterator<char>(file));
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
