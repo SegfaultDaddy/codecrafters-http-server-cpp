@@ -41,11 +41,13 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    std::cout << "HERE" << '\n';
     std::string directory_path{};
-    if(std::strcmp(argv[1], "--directory") == 0)
+    if(argc > 1)
     {
-        directory_path = argv[2];
+        if(std::strcmp(argv[1], "--directory") == 0)
+        {
+            directory_path = argv[2];
+        }
     }
 
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
