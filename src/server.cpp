@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <fstream>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <cstdlib>
 #include <iterator>
@@ -151,6 +152,7 @@ std::string get_response_message(const std::string& request_message, const std::
         {
             std::string filename{directory_path + find_string_in_between("files/", " HTTP", request_message)};
             std::ifstream file{filename};
+            file >> std::noskipws;
             std::string response{std::istream_iterator<char>{file}, std::istream_iterator<char>{}};
             std::cout << "Response: " << response << '\n';
             message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
