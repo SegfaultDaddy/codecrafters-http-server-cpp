@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     {
         directory_path = argv[2];
     }
-    
+    std::cout << directory_path << '\n';   
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
@@ -175,7 +175,6 @@ std::string get_response_message(const std::string& request_message, const std::
     default:
         break;
     }
-    std::cout << "Message: " << message << '\n';
     return message;
 }
 
