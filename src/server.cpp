@@ -184,5 +184,4 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
     }
 
     return 0;
-            std::cout << filename << '\n';
 }
