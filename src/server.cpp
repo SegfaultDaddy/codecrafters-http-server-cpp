@@ -33,6 +33,7 @@ struct Client
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
+void write_file(const std::string& filename, const std::string& directory_path, const std::string& text);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
 int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path);
 
@@ -146,6 +147,12 @@ std::optional<std::string> read_file(const std::string& filename, const std::str
     return std::nullopt;
 }
 
+void write_file(const std::string& filename, const std::string& directory_path, const std::string& text)
+{
+    std::ofstream file{directory_path + filename};
+    std::cout << "is_open: " << file.is_open() << '\n';
+}
+
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};    
@@ -177,9 +184,8 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 4:
         {
-            std::cout << "request_message: " << request_message << '\n';
             std::string text{find_string_in_between("\r\n\r\n", "\n", request_message)};
-            std::cout << "Text: " << text << '\n';
+            write_file(find_string_in_between("files/", " HTTP", request_message), directory_path, text);
             message = "HTTP/1.1 201 Created\r\n\r\n";
         }
         break;
