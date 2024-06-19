@@ -38,6 +38,11 @@ int main(int argc, char **argv)
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
+    if(std::strcmp(argv[2], "--directory") == 0)
+    {
+        std::cout << "Directory: " << argv[3] << '\n';
+    }
+
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
 
     if (server_fd < 0) 
