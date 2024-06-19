@@ -118,6 +118,7 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 {
     std::size_t start_index{line.find(first) + first.length()};
     std::size_t string_length{line.substr(start_index).find(second) - start_index - 1};
+    std::cout << "string length: " << string_length << '\n';
     std::string string_in_between{line.substr(start_index, string_length)};
     return string_in_between;
 }
