@@ -29,7 +29,7 @@ struct Client
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
 std::string get_response_message(const std::string& request_message);
-int send_server_response(Client& , int server_file_descriptor);
+int send_server_response(int client_file_descriptor, int server_file_descriptor);
 
 int main(int argc, char **argv) 
 {
