@@ -184,7 +184,7 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 4:
         {
-            std::string text{find_string_in_between("\r\n\r\n", "\n", request_message)};
+            std::string text{find_string_in_between("\r\n\r\n", "\0", request_message)};
             write_file(find_string_in_between("files/", " HTTP", request_message), directory_path, text);
             message = "HTTP/1.1 201 Created\r\n\r\n";
         }
