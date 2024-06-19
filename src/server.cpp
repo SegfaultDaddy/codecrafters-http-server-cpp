@@ -98,8 +98,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        std::cout << "Here\n";
-
+        std::cout << directory_path << '\n';
         threads[index] = std::thread{send_server_response, clients[index].file_descriptor, server_fd, directory_path};
         threads[index].join();
     }
