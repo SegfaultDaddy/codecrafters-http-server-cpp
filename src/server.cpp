@@ -86,7 +86,7 @@ int main(int argc, char **argv)
             return 1;
         }
         
-        std::cout << "Server connected\n";
+        std::cout << "Server connected: " << clients[index].file_descriptor << '\n';
 
         threads[index] = std::jthread{send_server_response, std::ref(clients[index]), server_fd} ;   
     }
