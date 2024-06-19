@@ -195,8 +195,6 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
         return 1;
     }
 
-    std::cout << "Request message: " << request_message_buffer << '\n';
-
     std::string response_message{get_response_message(request_message_buffer, directory_path)};
  
     ssize_t bytes_send{send(client_file_descriptor, response_message.c_str(), response_message.length(), MSG_EOR)};
