@@ -134,6 +134,7 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
 {
+    std::cout << "here\n";
     std::ifstream file{directory_path + filename};
     if(file.is_open())
     {
@@ -167,9 +168,7 @@ std::string get_response_message(const std::string& request_message, const std::
         break;
     case 3:
         {
-            std::cout << "HERE\n"; 
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
-            std::cout << "Hehe\n";
             if(read_data.has_value())
             {
                 message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
@@ -179,7 +178,6 @@ std::string get_response_message(const std::string& request_message, const std::
     default:
         break;
     }
-    std::cout << "Here\n"; 
     return message;
 }
 
