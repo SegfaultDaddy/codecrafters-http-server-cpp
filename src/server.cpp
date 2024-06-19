@@ -17,7 +17,7 @@
 #include <string_view>
 #include <thread>
 
-constexpr std::size_t max_clients{2};
+constexpr std::size_t max_clients{1};
 
 struct Client
 {
@@ -162,6 +162,7 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor)
         return 1;
     }
 
+    std::cout << "Accepted message: " << request_message_buffer << '\n';
     std::string message{get_response_message(request_message_buffer)};
     ssize_t bytes_send{send(client_file_descriptor, message.c_str(), message.length(), MSG_EOR)};
 
