@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     std::string directory_path{};
     if(std::strcmp(argv[1], "--directory") == 0)
     {
-        directory_path = argv[3];
+        directory_path = argv[2];
     }
     std::cout << "directory_path: " << directory_path << '\n';
     int server_fd{socket(AF_INET, SOCK_STREAM, 0)};
