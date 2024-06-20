@@ -200,6 +200,7 @@ std::string get_response_message(const std::string& request_message, const std::
                 response = gzip_compression(response);
             }
             message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            std::cout << response << '\n';
         }
         break;
     case 2:
