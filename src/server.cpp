@@ -185,9 +185,9 @@ std::string get_response_message(const std::string& request_message, const std::
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
             if(compression_header.has_value())
             {
-                message.insert(message.find("\r\n") - 1, compression_header.value());
+                message.insert(message.find("\r\n"), compression_header.value());
+                std::cerr << message << '\n';
             }
-            std::cout << "MESSAGE: " << message << '\n';
         }
         break;
     case 3:
