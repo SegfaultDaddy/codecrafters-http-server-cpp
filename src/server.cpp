@@ -20,6 +20,7 @@
 #include <thread>
 #include <optional>
 #include <variant>
+#include <zlib.h>
 
 constexpr std::size_t max_clients{8};
 
