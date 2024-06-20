@@ -32,7 +32,7 @@ struct Client
 
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
-std::string check_for_compression_header(const std::string& request_message);
+std::optional<std::string> check_for_compression_header(const std::string& request_message);
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
 void write_file(const std::string& filename, const std::string& directory_path, const std::string& text);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
@@ -134,14 +134,14 @@ std::string find_string_in_between(const std::string& first, const std::string& 
     return string_in_between;
 }
 
-std::string check_for_compression_header(const std::string& request_message)
+std::optional<std::string> check_for_compression_header(const std::string& request_message)
 {
     const std::string compression_header{"Accept-Encoding: "};
     if(request_message.find(compression_header) != std::string::npos)
     {
         return "Content-Encoding: " + find_string_in_between(compression_header, "\r\n", request_message) + "\r\n";
     }
-    return "\0";
+    return std::nullopt;
 }
 
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
@@ -167,8 +167,8 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
-    std::string compression_header{check_for_compression_header(request_message)};
-    std::cout << "Compression: " << compression_header << '\n';
+    std::optional<std::string> compression_header{check_for_compression_header(request_message)};
+    std::cout << "Compression: " << compression_header.value() << '\n';
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
@@ -184,6 +184,10 @@ std::string get_response_message(const std::string& request_message, const std::
         {
             std::string response{find_string_in_between("User-Agent: ", "\r\n", request_message)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            if(compression_header.has_value())
+            {
+                message.insert(message.find("\r\n"), compression_header.value());
+            }
         }
         break;
     case 3:
@@ -191,7 +195,7 @@ std::string get_response_message(const std::string& request_message, const std::
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
             if(read_data.has_value())
             {
-                message = "HTTP/1.1 200 OK\r\n" + compression_header + "Content-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
+                message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
             }
         }
         break;
