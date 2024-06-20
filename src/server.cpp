@@ -18,8 +18,8 @@
 #include <ranges>
 #include <string_view>
 #include <thread>
-#include <filesystem>
 #include <optional>
+#include <variant>
 
 constexpr std::size_t max_clients{9};
 
@@ -32,6 +32,7 @@ struct Client
 
 int find_start_sequnce_index(const std::string& request_message);
 std::string find_string_in_between(const std::string& first, const std::string& second, const std::string& line);
+std::string check_for_compression_header(const std::string& request_message);
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
 void write_file(const std::string& filename, const std::string& directory_path, const std::string& text);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
@@ -133,6 +134,16 @@ std::string find_string_in_between(const std::string& first, const std::string& 
     return string_in_between;
 }
 
+std::string check_for_compression_header(const std::string& request_message)
+{
+    const std::string compression_header{"Accept-Encoding: "};
+    if(request_message.find(compression_header) != std::string::npos)
+    {
+        return "Content-Encoding: " + find_string_in_between(compression_header, "\r\n", request_message) + "\r\n";
+    }
+    return "\0";
+}
+
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path)
 {
     std::ifstream file{directory_path + filename};
@@ -155,7 +166,9 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
-    std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};    
+    std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
+    std::string compression_header{check_for_compression_header(request_message)};
+    std::cout << "Compression: " << compression_header << '\n';
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
