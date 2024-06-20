@@ -136,10 +136,14 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 
 std::optional<std::string> check_for_compression_header(const std::string& request_message)
 {
-    const std::string compression_header{"Accept-Encoding: "};
-    if(request_message.find(compression_header) != std::string::npos)
+    static const std::string compression_header{"Accept-Encoding: "};
+    static const std::array<std::string, 1> available_encoding{"gzip"};
+    for(const auto& encoding : available_encoding)
     {
-        return "Content-Encoding: " + find_string_in_between(compression_header, "\r\n", request_message) + "\r\n";
+        if(request_message.find(compression_header) != std::string::npos && request_message.find(encoding) != std::string::npos)
+        {
+            return "Content-Encoding: " + find_string_in_between(compression_header, "\r\n", request_message) + "\r\n";
+        }
     }
     return std::nullopt;
 }
