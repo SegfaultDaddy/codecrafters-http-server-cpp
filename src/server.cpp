@@ -184,9 +184,9 @@ std::string get_response_message(const std::string& request_message, const std::
         {
             std::string response{find_string_in_between("User-Agent: ", "\r\n", request_message)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            std::cout << "CALLED\n";
             if(compression_header.has_value())
             {
-                std::cout << "CALLED\n";
                 message.insert(message.find("\r\n") + 2, compression_header.value());
             }
         }
