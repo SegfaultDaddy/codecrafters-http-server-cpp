@@ -182,9 +182,6 @@ std::string gzip_compression(const std::string& message_to_compress)
     zs.next_in = (Bytef *)message_to_compress.c_str();
     zs.next_out = (Bytef *)&buffer[0];
 
-    deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
-    deflate(&zs, Z_FINISH);
-    deflateEnd(&zs);
     std::cout << "buffer: " << buffer << '\n';
     return message_to_compress;
 }
