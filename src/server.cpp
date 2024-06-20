@@ -175,7 +175,6 @@ std::string gzip_compression(const std::string& text)
     std::ofstream write{filename};
     std::copy(text.begin(), text.end(), std::ostream_iterator<char>(write));
     write.close();
-    std::cout << text << '\n';
     std::string command{"gzip " + filename};
     system(command.c_str());
     std::ifstream read{filename + ".gz"};
