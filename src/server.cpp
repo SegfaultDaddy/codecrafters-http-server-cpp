@@ -201,6 +201,7 @@ std::string get_response_message(const std::string& request_message, const std::
                 message += "Content-Encoding: " + available_encoding.value() + "\r\n";
                 if(available_encoding.value() == "gzip")
                 {
+                    std::cout << "Here\n";
                     response = gzip_compression(response);
                 }
             }
