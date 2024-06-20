@@ -20,6 +20,7 @@
 #include <thread>
 #include <optional>
 #include <variant>
+#include <filesystem>
 
 constexpr std::size_t max_clients{8};
 
@@ -180,6 +181,7 @@ std::string gzip_compression(const std::string& text)
     std::ifstream read{filename + ".gz"};
     std::string compressed{std::istream_iterator<char>{read}, std::istream_iterator<char>{}}; 
     read.close();
+    std::filesystem::remove(filename + ".gz");
     return compressed;
 }
 
@@ -201,7 +203,6 @@ std::string get_response_message(const std::string& request_message, const std::
                 message += "Content-Encoding: " + available_encoding.value() + "\r\n";
                 if(available_encoding.value() == "gzip")
                 {
-                    std::cout << "Here\n";
                     response = gzip_compression(response);
                 }
             }
