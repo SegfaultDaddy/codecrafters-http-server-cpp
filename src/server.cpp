@@ -176,10 +176,11 @@ std::string gzip_compression(const std::string& message_to_compress)
     write_file(filename, directory, message_to_compress);
     std::string command{"gzip " + directory + filename};
     system(command.c_str());
-    std::optional<std::string> compressed{read_file(filename, directory)};
+    std::ifstream read_file{directory + filename + ".gz"};
+    std::string compressed{std::istream_iterator<char>{read_file}, std::istream_iterator<char>{}};
     std::cout << "Original: " << message_to_compress << '\n';
-    std::cout << "Compressed: " << compressed.value() << '\n';
-    return compressed.value();
+    std::cout << "Compressed: " << compressed << '\n';
+    return compressed;
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
