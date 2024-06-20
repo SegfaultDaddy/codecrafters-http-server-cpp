@@ -21,6 +21,7 @@
 #include <optional>
 #include <variant>
 #include "zlib.h"
+#include "gzstream.h"
 
 constexpr std::size_t max_clients{9};
 
