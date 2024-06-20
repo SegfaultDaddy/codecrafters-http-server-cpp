@@ -20,7 +20,7 @@
 #include <thread>
 #include <optional>
 #include <variant>
-#include <zlib.h>
+#include <gzstream.h>
 
 constexpr std::size_t max_clients{9};
 
@@ -172,19 +172,7 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 
 std::string gzip_compression(const std::string& message_to_compress)
 {
-    std::string buffer(1024, '\0');
-
-    z_stream zs;
-    zs.zalloc = Z_NULL;
-    zs.zfree = Z_NULL;
-    zs.opaque = Z_NULL;
-    zs.avail_in = (uInt)message_to_compress.length();
-    zs.next_in = (Bytef *)message_to_compress.c_str();
-    zs.avail_out = (uInt)buffer.length();
-    zs.next_out = (Bytef *)&buffer[0];
-
-    std::cout << "buffer: " << buffer << '\n';
-    return message_to_compress;
+   return message_to_compress;
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
@@ -203,7 +191,7 @@ std::string get_response_message(const std::string& request_message, const std::
             if(available_encoding.has_value())
             {
                 message += "Content-Encoding: " + available_encoding.value() + "\r\n";
-                gzip_compression(response);
+                std::cout << "Message" << gzip_compression(response) << '\n';
             }
             message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
