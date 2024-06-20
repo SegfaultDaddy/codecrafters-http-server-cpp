@@ -168,6 +168,7 @@ std::string get_response_message(const std::string& request_message, const std::
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
     std::optional<std::string> compression_header{check_for_compression_header(request_message)};
+    std::cout << "Compression_header: " << compression_header.value() << '\n';
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
