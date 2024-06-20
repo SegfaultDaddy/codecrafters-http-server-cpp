@@ -142,7 +142,7 @@ std::optional<std::string> check_for_compression_header(const std::string& reque
     {
         if(request_message.find(compression_header) != std::string::npos && request_message.find(encoding) != std::string::npos)
         {
-            return "Content-Encoding: " + find_string_in_between(compression_header, "\r\n", request_message) + "\r\n";
+            return "Content-Encoding: " + encoding + "\r\n";
         }
     }
     return std::nullopt;
