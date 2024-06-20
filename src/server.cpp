@@ -191,7 +191,7 @@ std::string get_response_message(const std::string& request_message, const std::
             auto read_data{read_file(find_string_in_between("files/", " HTTP", request_message), directory_path)};
             if(read_data.has_value())
             {
-                message = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
+                message = "HTTP/1.1 200 OK\r\n" + compression_header + "Content-Type: application/octet-stream\r\nContent-Length: " + std::to_string(read_data.value().length()) + "\r\n\r\n" + read_data.value();
             }
         }
         break;
