@@ -20,7 +20,10 @@
 #include <thread>
 #include <optional>
 #include <variant>
-#include <zlib.h>
+#include <stdio.h>
+#include <string.h>  // for strlen
+#include <assert.h>
+#include "zlib.h"
 
 constexpr std::size_t max_clients{8};
 
@@ -171,7 +174,7 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 }
 
 std::string gzip_compression(const std::string& message_to_compress)
-{ 
+{
     char a[50] = "Hello Hello Hello Hello Hello Hello!"; 
 
     // placeholder for the compressed (deflated) version of "a" 
@@ -209,7 +212,32 @@ std::string gzip_compression(const std::string& message_to_compress)
     // This is one way of getting the size of the output
     printf("Compressed size is: %lu\n", strlen(b));
     printf("Compressed string is: %s\n", b);
-   return message_to_compress;
+    
+
+    printf("\n----------\n\n");
+
+
+    // STEP 2.
+    // inflate b into c
+    // zlib struct
+    z_stream infstream;
+    infstream.zalloc = Z_NULL;
+    infstream.zfree = Z_NULL;
+    infstream.opaque = Z_NULL;
+    // setup "b" as the input and "c" as the compressed output
+    infstream.avail_in = (uInt)((char*)defstream.next_out - b); // size of input
+    infstream.next_in = (Bytef *)b; // input char array
+    infstream.avail_out = (uInt)sizeof(c); // size of output
+    infstream.next_out = (Bytef *)c; // output char array
+     
+    // the actual DE-compression work.
+    inflateInit(&infstream);
+    inflate(&infstream, Z_NO_FLUSH);
+    inflateEnd(&infstream);
+     
+    printf("Uncompressed size is: %lu\n", strlen(c));
+    printf("Uncompressed string is: %s\n", c);
+    return message_to_compress;
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
