@@ -180,6 +180,7 @@ std::string gzip_compression(const std::string& message_to_compress)
     zs.opaque = Z_NULL;
     zs.avail_in = (uInt)message_to_compress.length();
     zs.next_in = (Bytef *)message_to_compress.c_str();
+    zs.avail_out = (uInt)buffer.length();
     zs.next_out = (Bytef *)&buffer[0];
 
     std::cout << "buffer: " << buffer << '\n';
@@ -202,7 +203,7 @@ std::string get_response_message(const std::string& request_message, const std::
             if(available_encoding.has_value())
             {
                 message += "Content-Encoding: " + available_encoding.value() + "\r\n";
-                std::cout << "Encoding: " << gzip_compression(response) << '\n';
+                gzip_compression(response);
             }
             message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
