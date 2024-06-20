@@ -168,7 +168,6 @@ std::string get_response_message(const std::string& request_message, const std::
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
     std::optional<std::string> compression_header{check_for_compression_header(request_message)};
-    std::cout << "Compression_header: " << compression_header.value() << '\n';
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
@@ -178,17 +177,16 @@ std::string get_response_message(const std::string& request_message, const std::
         {
             std::string response{find_string_in_between("echo/", " HTTP", request_message)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
+            if(compression_header.has_value())
+            {
+                message.insert(message.find("\r\n") + 2, compression_header.value());
+            }
         }
         break;
     case 2:
         {
             std::string response{find_string_in_between("User-Agent: ", "\r\n", request_message)};
             message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
-            std::cout << "CALLED\n";
-            if(compression_header.has_value())
-            {
-                message.insert(message.find("\r\n") + 2, compression_header.value());
-            }
         }
         break;
     case 3:
@@ -227,7 +225,6 @@ int send_server_response(int client_file_descriptor, int server_file_descriptor,
 
     std::string response_message{get_response_message(request_message_buffer, directory_path)};
  
-    std::cout << "RESPONSE: " << response_message;
     ssize_t bytes_send{send(client_file_descriptor, response_message.c_str(), response_message.length(), MSG_EOR)};
 
     if(bytes_send < 0)
