@@ -187,7 +187,7 @@ std::string get_response_message(const std::string& request_message, const std::
             {
                 message.insert(message.find("\r\n") - 1, compression_header.value());
             }
-            std::cout << message << '\n';
+            std::cout << "MESSAGE: " << message << '\n';
         }
         break;
     case 3:
