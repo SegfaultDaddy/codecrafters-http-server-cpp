@@ -173,7 +173,7 @@ std::string gzip_compression(const std::string& message_to_compress)
 {
     const static std::string filename{"temporary_compression.txt"};
     write_file(filename, "/tmp/", message_to_compress);
-    std::string command{"gzip " + filename};
+    std::string command{"gzip " + "/tmp/" + filename};
     system(command.c_str());
     std::ifstream read_file{filename + ".gz"};
     std::string compressed{std::istream_iterator<char>{read_file}, std::istream_iterator<char>{}};
