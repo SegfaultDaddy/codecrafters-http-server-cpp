@@ -176,8 +176,9 @@ std::string gzip_compression(const std::string& message_to_compress)
     write_file(filename, directory, message_to_compress);
     std::string command{"gzip " + directory + filename};
     system(command.c_str());
-    std::ifstream read_file{directory + filename + ".gz"};
-    std::string compressed{std::istream_iterator<char>{read_file}, std::istream_iterator<char>{}};
+    std::ifstream read{directory + filename + ".gz"};
+    std::string compressed{std::istream_iterator<char>{read}, std::istream_iterator<char>{}};
+    read.close();
     return compressed;
 }
 
@@ -193,6 +194,7 @@ std::string get_response_message(const std::string& request_message, const std::
     case 1:
         {
             std::string response{find_string_in_between("echo/", " HTTP", request_message)};
+            std::cout << response << '\n';
             message = "HTTP/1.1 200 OK\r\n";
             if(available_encoding.has_value())
             {
@@ -200,7 +202,6 @@ std::string get_response_message(const std::string& request_message, const std::
                 response = gzip_compression(response);
             }
             message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
-            std::cout << response << '\n';
         }
         break;
     case 2:
