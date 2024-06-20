@@ -194,7 +194,6 @@ std::string get_response_message(const std::string& request_message, const std::
     case 1:
         {
             std::string response{find_string_in_between("echo/", " HTTP", request_message)};
-            std::cout << response << '\n';
             message = "HTTP/1.1 200 OK\r\n";
             if(available_encoding.has_value())
             {
