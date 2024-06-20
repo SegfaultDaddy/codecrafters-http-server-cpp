@@ -172,6 +172,7 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 
 std::string gzip_compression(const std::string& message_to_compress)
 {
+    z_stream gzip_stream;
     return message_to_compress;
 }
 
