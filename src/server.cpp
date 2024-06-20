@@ -35,6 +35,7 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 std::optional<std::string> check_for_compression_header(const std::string& request_message);
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
 void write_file(const std::string& filename, const std::string& directory_path, const std::string& text);
+std::string gzip_compression(const std::string& message_to_compress);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
 int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path);
 
@@ -142,7 +143,7 @@ std::optional<std::string> check_for_compression_header(const std::string& reque
     {
         if(request_message.find(compression_header) != std::string::npos && request_message.find(encoding) != std::string::npos)
         {
-            return "Content-Encoding: " + encoding + "\r\n";
+            return encoding;
         }
     }
     return std::nullopt;
@@ -168,10 +169,15 @@ void write_file(const std::string& filename, const std::string& directory_path, 
     std::copy(text.begin(), text.end(), std::ostream_iterator<char>(file));
 }
 
+std::string gzip_compression(const std::string& message_to_compress)
+{
+    return message_to_compress;
+}
+
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
 {
     std::string message{"HTTP/1.1 404 Not Found\r\n\r\n"};
-    std::optional<std::string> compression_header{check_for_compression_header(request_message)};
+    std::optional<std::string> available_encoding{check_for_compression_header(request_message)};
     switch (find_start_sequnce_index(request_message))
     {
     case 0:
@@ -180,11 +186,13 @@ std::string get_response_message(const std::string& request_message, const std::
     case 1:
         {
             std::string response{find_string_in_between("echo/", " HTTP", request_message)};
-            message = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
-            if(compression_header.has_value())
+            message = "HTTP/1.1 200 OK\r\n";
+            if(available_encoding.has_value())
             {
-                message.insert(message.find("\r\n") + 2, compression_header.value());
+                message += "Content-Encoding: " + available_encoding.value() + "\r\n";
+                std::cout << "Encoding: " << gzip_compression(response) << '\n';
             }
+            message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
         }
         break;
     case 2:
