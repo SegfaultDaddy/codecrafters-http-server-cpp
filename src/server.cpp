@@ -204,6 +204,7 @@ std::string get_response_message(const std::string& request_message, const std::
                 if(available_encoding.value() == "gzip")
                 {
                     response = gzip_compression(response);
+                    std::cout << response << '\n';
                 }
             }
             message += "Content-Type: text/plain\r\nContent-Length: " + std::to_string(response.length()) + "\r\n\r\n" + response;
