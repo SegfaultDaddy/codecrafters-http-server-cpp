@@ -172,13 +172,14 @@ void write_file(const std::string& filename, const std::string& directory_path, 
 std::string gzip_compression(const std::string& message_to_compress)
 {
     const static std::string filename{"temporary_compression.txt"};
-    write_file(filename, "/tmp/", message_to_compress);
-    std::string command{"gzip "};
-    command += "/tmp/" + filename;
+    const static std::string directory{"/tmp/"};
+    write_file(filename, directory, message_to_compress);
+    std::string command{"gzip " + directory + filename};
     system(command.c_str());
-    std::ifstream read_file{"/tmp/" + filename + ".gz"};
-    std::string compressed{std::istream_iterator<char>{read_file}, std::istream_iterator<char>{}};
-    return compressed;
+    std::optional<std::string> compressed{read_file(filename, directory)};
+    std::cout << "Original: " << message_to_compress << '\n';
+    std::cout << "Compressed: " << compressed.value() << '\n';
+    return compressed.value();
 }
 
 std::string get_response_message(const std::string& request_message, const std::string& directory_path)
