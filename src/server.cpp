@@ -35,7 +35,7 @@ std::string find_string_in_between(const std::string& first, const std::string& 
 std::optional<std::string> check_for_compression_header(const std::string& request_message);
 std::optional<std::string> read_file(const std::string& filename, const std::string& directory_path);
 void write_file(const std::string& filename, const std::string& directory_path, const std::string& text);
-std::string gzip_compression(const std::string& message_to_compress);
+std::string gzip_compression(const std::string& text);
 std::string get_response_message(const std::string& request_message, const std::string& directory_path);
 int send_server_response(int client_file_descriptor, int server_file_descriptor, const std::string& directory_path);
 
@@ -169,15 +169,16 @@ void write_file(const std::string& filename, const std::string& directory_path, 
     std::copy(text.begin(), text.end(), std::ostream_iterator<char>(file));
 }
 
-std::string gzip_compression(const std::string& message_to_compress)
+std::string gzip_compression(const std::string& text)
 {
-    const static std::string filename{"temporary_compression.txt"};
-    const static std::string directory{"/tmp/"};
-    write_file(filename, directory, message_to_compress);
-    std::string command{"gzip " + directory + filename};
+    const static std::string filename{"/tmp/temporary_compression.txt"}; 
+    std::ofstream write{filename};
+    std::copy(text.begin(), text.end(), std::ostream_iterator<char>(write));
+    write.close();
+    std::string command{"gzip " + filename};
     system(command.c_str());
-    std::ifstream read{directory + filename + ".gz"};
-    std::string compressed{std::istream_iterator<char>{read}, std::istream_iterator<char>{}};
+    std::ifstream read{filename + ".gz"};
+    std::string compressed{std::istream_iterator<char>{read}, std::istream_iterator<char>{}}; 
     read.close();
     return compressed;
 }
